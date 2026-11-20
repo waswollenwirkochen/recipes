@@ -299,7 +299,7 @@ dialog[open]{display:flex;flex-direction:column}
 <dialog id="cropper" aria-labelledby="crTitle">
   <form method="dialog" class="pk-head"><h3 id="crTitle">Bild</h3><button class="xbtn" value="close" aria-label="Schließen">×</button></form>
   <div class="dlg-body">
-    <div class="dlg-actions"><label class="btn small" for="crFile">Foto auswählen</label><input id="crFile" type="file" accept="image/*" hidden></div>
+    <div class="dlg-actions"><label class="btn small" for="crFile">Foto auswählen</label><input id="crFile" type="file" accept="image/*" hidden><label class="btn small" for="crCam">Foto aufnehmen</label><input id="crCam" type="file" accept="image/*" capture="environment" hidden></div>
     <div id="crStage" hidden>
       <div class="crop-frame" id="crFrame"><canvas id="crCanvas" width="800" height="600"></canvas><div class="crop-guide" title="So wird das Bild in der Übersicht gezeigt"></div></div>
       <p>Mit dem Finger oder der Maus verschieben, mit dem Regler oder zwei Fingern zoomen. Die gestrichelte Fläche zeigt den Ausschnitt in der Übersicht.</p>
@@ -1109,12 +1109,12 @@ function crSetMsg(t, err){ const m = $('#crMsg'); m.textContent = t || ''; m.cla
 function openCropper(mode, d){
   CR.mode = mode; CR.dish = d; CR.img = null; CR.z = 1; CR.busy = false;
   $('#crTitle').textContent = (mode === 'main' ? 'Bild für ' : 'Foto einsenden: ') + d.name;
-  $('#crGuest').hidden = mode === 'main'; $('#crFile').value = ''; $('#crStage').hidden = true; $('#crZoom').value = 1;
+  $('#crGuest').hidden = mode === 'main'; $('#crFile').value = ''; $('#crCam').value = ''; $('#crStage').hidden = true; $('#crZoom').value = 1;
   $('#crSave').disabled = true; $('#crSave').textContent = mode === 'main' ? 'Speichern und veröffentlichen' : 'Einsenden'; crSetMsg('');
   try { $('#crName').value = localStorage.getItem('gerichte-roster-name') || ''; } catch(e){}
   $('#cropper').showModal();
 }
-$('#crFile').addEventListener('change', async e => {
+const crPick = async e => {
   const f = e.target.files[0]; if (!f) return; crSetMsg('Bild wird geladen …');
   try {
     let img;
@@ -1125,7 +1125,8 @@ $('#crFile').addEventListener('change', async e => {
     CR.cx = w / 2; CR.cy = h / 2; CR.z = 1; $('#crZoom').value = 1;
     $('#crStage').hidden = false; $('#crSave').disabled = false; crSetMsg(''); crDraw();
   } catch(err){ CR.img = null; crSetMsg('Dieses Bildformat lässt sich nicht öffnen. Bitte JPG oder PNG verwenden.', true); }
-});
+};
+$('#crFile').addEventListener('change', crPick); $('#crCam').addEventListener('change', crPick);
 $('#crZoom').addEventListener('input', e => { CR.z = +e.target.value; crDraw(); });
 const crFrame = $('#crFrame');
 crFrame.addEventListener('wheel', e => { if (!CR.img) return; e.preventDefault(); CR.z = Math.min(4, Math.max(1, CR.z * Math.exp(-e.deltaY * .0015))); $('#crZoom').value = CR.z; crDraw(); }, { passive: false });
