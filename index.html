@@ -2,11 +2,18 @@
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gerichte-Roster</title>
 <meta name="description" content="Alle Lieblingsgerichte auf einen Blick: suchen, filtern, würfeln, Woche planen.">
-<meta name="theme-color" content="#14231F">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8D%B2%3C/text%3E%3C/svg%3E">
+<meta name="theme-color" content="#F2F5F3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101715" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Roster">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/favicon-64.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap" rel="stylesheet">
@@ -33,7 +40,9 @@ button,input,select,textarea{font:inherit;color:inherit}
 .wrap{max-width:1180px;margin:0 auto;padding:0 16px}
 
 /* Kopfleiste */
-.top{position:sticky;top:0;z-index:30;background:var(--bg);border-bottom:1px solid var(--line)}
+.top{position:sticky;top:0;z-index:30;background:var(--bg);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top)}
+button,a,.tile,select,label{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+@media (pointer:coarse){input,select,textarea{font-size:16px}}
 .top .wrap{display:flex;align-items:center;justify-content:space-between;height:56px}
 .home{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font:800 1.1rem var(--display);padding:6px 8px 6px 0}
 .home svg{width:22px;height:22px}
@@ -227,7 +236,7 @@ dialog[open]{display:flex;flex-direction:column}
 .pend img{width:120px;height:90px;object-fit:cover;border-radius:10px;background:var(--line)}
 .pend .actions{margin-top:8px}
 .lb-img{max-width:100%;max-height:60vh;border-radius:12px;display:block;margin:0 auto}
-.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;z-index:100;max-width:90vw;text-align:center}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;z-index:100;max-width:90vw;text-align:center}
 .foot{border-top:1px solid var(--line);padding:18px 0 40px;color:var(--muted);font-size:.88rem}
 .foot p{margin:0 0 4px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -293,6 +302,7 @@ dialog[open]{display:flex;flex-direction:column}
 
 <footer class="wrap foot">
   <p id="status"></p>
+  <p><button class="linkbtn" id="installBtn" type="button" hidden>App installieren</button></p>
   <p><button class="linkbtn" id="adminBtn" type="button">Admin</button></p>
 </footer>
 
@@ -1216,6 +1226,19 @@ $('#adminView').addEventListener('click', async e => {
     pending = pending.filter(x => x.id !== id); refreshAdminUI(); renderAdmin(); toast(ok ? 'Freigegeben. Für alle sichtbar in etwa 1 bis 2 Minuten.' : 'Abgelehnt.');
   } catch(err){ msg.className = 'msg err'; msg.textContent = 'Fehlgeschlagen: ' + (err.message || ''); $$('button', card).forEach(b => b.disabled = false); }
 });
+
+/* ============ App: Installation und Offline ============ */
+const isStandalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+let installEvt = null;
+if (!isStandalone && isIOS) $('#installBtn').hidden = false;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; if (!isStandalone) $('#installBtn').hidden = false; });
+window.addEventListener('appinstalled', () => { $('#installBtn').hidden = true; installEvt = null; });
+$('#installBtn').addEventListener('click', async () => {
+  if (installEvt){ installEvt.prompt(); try { await installEvt.userChoice; } catch(e){} installEvt = null; $('#installBtn').hidden = true; }
+  else toast('Unten auf „Teilen“ tippen und dann „Zum Home-Bildschirm“ wählen.');
+});
+if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 
 /* ============ Navigation ============ */
 function showView(v){
