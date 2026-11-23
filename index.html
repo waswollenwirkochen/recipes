@@ -112,9 +112,20 @@ h1{font:800 clamp(2.1rem,7vw,3.9rem)/1 var(--display);letter-spacing:-.025em;mar
 .empty button{margin-top:14px}
 
 /* Detail */
-.detail{padding:14px 0 70px}
-.back{display:inline-flex;align-items:center;gap:6px;background:none;border:0;cursor:pointer;font-weight:600;padding:8px 6px 8px 0;margin-bottom:8px}
-.back svg{width:20px;height:20px}
+/* Rezept als Pop-up */
+#detailView{position:fixed;inset:0;z-index:40;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;background:rgba(8,16,13,.5);padding:calc(10px + env(safe-area-inset-top)) 0 0}
+#detailView[hidden]{display:none}
+body.sheet-open{overflow:hidden}
+.sheet{background:var(--bg);max-width:1040px;margin:0 auto;min-height:calc(100% - 10px);border-radius:22px 22px 0 0;padding:0 16px calc(48px + env(safe-area-inset-bottom));box-shadow:0 -10px 40px rgba(0,0,0,.25);animation:sheetIn .28s cubic-bezier(.2,.8,.2,1)}
+.sheet.swap{animation:sheetSwap .32s ease}
+@media (min-width:820px){#detailView{padding:4vh 16px}.sheet{border-radius:22px;min-height:0;padding:0 32px 40px}}
+@keyframes sheetIn{from{transform:translateY(48px);opacity:0}to{transform:none;opacity:1}}
+@keyframes sheetSwap{from{opacity:.2;transform:scale(.985)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.sheet,.sheet.swap{animation:none}}
+.sheet-bar{position:sticky;top:0;z-index:3;display:flex;justify-content:flex-end;align-items:center;background:var(--bg);padding:10px 0 6px;margin-bottom:4px}
+.sheet-bar::before{content:"";position:absolute;left:50%;top:6px;width:42px;height:5px;margin-left:-21px;border-radius:3px;background:var(--line)}
+.back{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:var(--surface);border:1.5px solid var(--line);border-radius:999px;cursor:pointer;font-weight:600;padding:7px 14px 7px 10px}
+.back svg{width:18px;height:18px}
 .dhead{display:grid;gap:18px}
 @media (min-width:820px){.dhead{grid-template-columns:minmax(0,420px) 1fr;gap:34px;align-items:end}}
 .dimg{aspect-ratio:4/3;border-radius:var(--r)}
@@ -134,7 +145,7 @@ h1{font:800 clamp(2.1rem,7vw,3.9rem)/1 var(--display);letter-spacing:-.025em;mar
 .daypick p{margin:0 0 8px;color:var(--muted);font-size:.9rem}
 .chip.day{min-width:48px;justify-content:center;font-weight:700}
 .recipe{display:grid;gap:28px;margin-top:34px}
-@media (min-width:820px){.recipe.two{grid-template-columns:minmax(280px,380px) 1fr;gap:48px;align-items:start}.ings{position:sticky;top:72px}}
+@media (min-width:820px){.recipe.two{grid-template-columns:minmax(280px,380px) 1fr;gap:48px;align-items:start}.ings{position:sticky;top:64px}}
 .recipe h3{font:800 1.5rem var(--display);margin:0 0 12px}
 .intro{color:var(--muted);margin:-4px 0 14px;max-width:62ch}
 .scale{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
@@ -236,6 +247,19 @@ dialog[open]{display:flex;flex-direction:column}
 .pend img{width:120px;height:90px;object-fit:cover;border-radius:10px;background:var(--line)}
 .pend .actions{margin-top:8px}
 .lb-img{max-width:100%;max-height:60vh;border-radius:12px;display:block;margin:0 auto}
+.xf-all{display:flex;align-items:center;gap:10px;font-weight:700;padding:10px 12px;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r)}
+.xf-tree{display:grid;gap:8px}
+.xf-cat{border:1.5px solid var(--line);border-radius:var(--r);background:var(--surface)}
+.xf-cat summary{display:flex;align-items:center;gap:10px;padding:9px 12px;cursor:pointer;list-style:none;font-weight:700}
+.xf-cat summary::-webkit-details-marker{display:none}
+.xf-cat summary .n2{margin-left:auto}
+.xf-cat ul{list-style:none;margin:0;padding:0 12px 8px 40px;display:grid;gap:2px}
+.xf-cat li label{display:flex;gap:10px;align-items:baseline;padding:4px 0;cursor:pointer}
+.xf-all input,.xf-cat input{width:20px;height:20px;accent-color:var(--ink);flex:0 0 auto}
+.xf-go{position:sticky;bottom:-16px;background:var(--bg);padding:10px 0 4px;margin-bottom:-4px}
+.seg{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.seg button{border:2px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-weight:700;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;z-index:100;max-width:90vw;text-align:center}
 .foot{border-top:1px solid var(--line);padding:18px 0 40px;color:var(--muted);font-size:.88rem}
 .foot p{margin:0 0 4px}
@@ -289,7 +313,7 @@ dialog[open]{display:flex;flex-direction:column}
     </div>
   </section>
 
-  <section class="detail" id="detailView" hidden></section>
+  <section id="detailView" hidden role="dialog" aria-modal="true" aria-label="Rezept"></section>
   <section class="planpage" id="planView" hidden></section>
   <section class="planpage" id="adminView" hidden></section>
 </main>
@@ -339,6 +363,10 @@ dialog[open]{display:flex;flex-direction:column}
   <form method="dialog" class="pk-head"><h3 id="lbTitle">Foto</h3><button class="xbtn" value="close" aria-label="Schließen">×</button></form>
   <div class="dlg-body"><img class="lb-img" id="lbImg" alt=""><div class="dlg-actions"><button class="btn small" id="lbDel" type="button" hidden>Foto löschen</button></div><div class="msg" id="lbMsg"></div></div>
 </dialog>
+<dialog id="xfer" aria-labelledby="xfTitle">
+  <form method="dialog" class="pk-head"><h3 id="xfTitle">Liste übertragen</h3><button class="xbtn" value="close" aria-label="Schließen">×</button></form>
+  <div class="dlg-body" id="xfBody"></div>
+</dialog>
 <div class="toast" id="toast" role="status" hidden></div>
 
 <noscript><p class="wrap">Diese Seite braucht JavaScript.</p></noscript>
@@ -353,6 +381,7 @@ const CONFIG = {
   recipesTab: 'Rezepte',
   imageDir: 'bilder/',
   repoOwner: '', repoName: '', branch: 'main',   // leer = aus der Adresse ableiten (name.github.io/repo/)
+  shopUrl: '../shopping/', shopDataRepo: '',   // Einkaufs-App und ihr privates Daten-Repo (leer = <besitzer>/shopping-data)
   guestEndpoint: 'https://script.google.com/macros/s/AKfycbzq6EBB8890FOKqSD2yj_jZkXd1aLSV0cZltVC6NGK66TcXyOPHySgUsJdU4WkKgjDgNA/exec',                            // Adresse der Apps-Script-Web-App für Gästefotos, leer = Gäste-Upload aus
   defaultTab: 'Hauptgerichte',
   tabs: [
@@ -864,7 +893,9 @@ function renderAll(){ renderTabs(); renderPanel(); renderList(); }
 function rollRandom(){
   const pool = lastList.length ? lastList : M.dishes; if (!pool.length) return;
   let d; do { d = pool[Math.floor(Math.random() * pool.length)]; } while (pool.length > 1 && current && d.id === current.id);
-  rolled = true; cameInApp = true; location.hash = '#/g/' + d.id;
+  rolled = true;
+  if (view === 'detail') location.replace('#/g/' + d.id);   // im Pop-up: Eintrag ersetzen, damit Zurück das Pop-up schließt
+  else { cameInApp = true; location.hash = '#/g/' + d.id; }
 }
 function spin(){ const b = $('#roll'); b.classList.remove('spin'); void b.offsetWidth; b.classList.add('spin'); }
 
@@ -916,8 +947,8 @@ function showDetail(d, keepFactor){
     d.kitchen ? `<span class="fact">${esc(d.kitchen)}</span>` : '', ...d.tags.map(x => `<span class="fact">${esc(x)}</span>`),
     d.dauer ? `<span class="fact">${esc(/^\d+$/.test(d.dauer) ? d.dauer + ' Min.' : d.dauer)}</span>` : ''].join('');
   const structured = d.rec && d.rec.parsed && d.rec.parsed.kind === 'structured';
-  $('#detailView').innerHTML = `
-    <button class="back" id="back" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Zurück</button>
+  $('#detailView').innerHTML = `<div class="sheet">
+    <div class="sheet-bar"><button class="back" id="back" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>Schließen</button></div>
     <div class="dhead"><div class="dleft">${thumbHTML(d, 'dimg')}${imgToolsHTML()}${galleryHTML(d)}</div>
       <div class="dtitle"><h2>${esc(d.name)}</h2><div class="facts">${facts}</div>
         ${d.variations ? `<div class="note"><b>Variationen</b>${esc(d.variations)}</div>` : ''}
@@ -928,7 +959,7 @@ function showDetail(d, keepFactor){
         <div class="daypick" id="daypick" hidden><p id="dayinfo"></p><div class="chips">${DAYS_SHORT.map((s, i) => `<button class="chip day" type="button" data-day="${i}" aria-pressed="false" title="${DAYS[i]}" aria-label="${DAYS[i]}">${s}</button>`).join('')}</div></div>
       </div>
     </div>
-    ${recipeHTML(d)}`;
+    ${recipeHTML(d)}</div>`;
   fillScaled(); refreshPlanButtons();
   const im = $('#detailView .dimg img'), upd = () => { const b = $('#imgAdd'); if (b) b.textContent = 'Bild ersetzen'; };
   if (im){ if (im.complete && im.naturalWidth) upd(); else im.addEventListener('load', upd); }
@@ -943,7 +974,7 @@ function galleryHTML(d){
   const items = G.g[d.slug] || []; if (!items.length) return '';
   return `<div class="gal"><h3>Bilder von anderen</h3><div class="gal-row">${items.map((x, i) => `<button type="button" data-gi="${i}" aria-label="Foto von ${esc(x.by || 'Gast')} ansehen"><img src="${esc(CONFIG.imageDir + x.f)}" alt="" loading="lazy"></button>`).join('')}</div></div>`;
 }
-function rerenderDetail(){ if (view === 'detail' && current){ const y = window.scrollY; showDetail(current, true); window.scrollTo(0, y); } }
+function rerenderDetail(){ if (view === 'detail' && current){ const el = $('#detailView'), y = el.scrollTop; showDetail(current, true); $('.sheet', el).style.animation = 'none'; el.scrollTop = y; } }
 async function toggleWake(){
   try {
     if (wake){ await wake.release(); wake = null; }
@@ -978,7 +1009,7 @@ function renderPlan(sub){
     html += `<div class="shop">`;
     if (!plan.entries.length) html += `<p class="none" style="margin-top:18px">Der Plan ist leer. Sobald Gerichte eingetragen sind, erscheinen hier ihre Zutaten.</p>`;
     else html += `<p class="hint" style="margin-top:14px">Nach Bereichen sortiert. Kitchen essentials stehen eingeklappt am Ende und fehlen in der kopierten Liste. Über ⋮ lässt sich der Bereich eines Eintrags ändern.</p>`;
-    html += `<div class="toolbar"><button class="btn small" id="copyList" type="button">Liste kopieren</button><button class="btn small" id="uncheck" type="button">Haken zurücksetzen</button></div>`;
+    html += `<div class="toolbar"><button class="btn small primary" id="xferBtn" type="button"${agg.items.length + plan.manual.length ? '' : ' disabled'}>Liste übertragen</button><button class="btn small" id="copyList" type="button">Liste kopieren</button><button class="btn small" id="uncheck" type="button">Haken zurücksetzen</button></div>`;
     CATS.filter(c => c.id !== 'ess').forEach(c => {
       const list = agg.items.filter(i => i.cat === c.id);
       if (list.length) html += `<h3>${esc(c.label)} <span class="n2">${list.length}</span></h3><ul>${list.map(row).join('')}</ul>`;
@@ -1227,6 +1258,116 @@ $('#adminView').addEventListener('click', async e => {
   } catch(err){ msg.className = 'msg err'; msg.textContent = 'Fehlgeschlagen: ' + (err.message || ''); $$('button', card).forEach(b => b.disabled = false); }
 });
 
+
+/* ============ Einkaufs-App: Liste übertragen ============ */
+const SHOP_CONN = 'gerichte-roster-einkauf-v1';
+function shopConn(){
+  // gleiche Adresse (github.io) = gemeinsamer Speicher auf Android und am Computer; sonst die Verbindung vom iPhone
+  try { const a = JSON.parse(localStorage.getItem('einkauf-v1') || 'null'); if (a && a.tok && a.lists && a.lists.length) return { t: a.tok, l: a.lists.map(x => ({ k: x.k, n: x.name, e: x.emoji })) }; } catch(e){}
+  try { const c = JSON.parse(localStorage.getItem(SHOP_CONN) || 'null'); if (c && c.t && c.l && c.l.length) return c; } catch(e){}
+  return null;
+}
+function shopRepo(){
+  if (CONFIG.shopDataRepo) return CONFIG.shopDataRepo;
+  const m = location.hostname.match(/^([^.]+)\.github\.io$/); return m ? m[1] + '/shopping-data' : '';
+}
+const shTe = new TextEncoder(), shTd = new TextDecoder();
+function shB64(u8){ let s = ''; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return btoa(s); }
+function shUnB64(s){ const b = atob(s), u = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; }
+async function shKey(secret){ return crypto.subtle.importKey('raw', await crypto.subtle.digest('SHA-256', shTe.encode('key:' + secret)), 'AES-GCM', false, ['encrypt', 'decrypt']); }
+async function shFileId(secret){ const h = new Uint8Array(await crypto.subtle.digest('SHA-256', shTe.encode('list:' + secret))); return [...h.slice(0, 12)].map(x => x.toString(16).padStart(2, '0')).join(''); }
+const shRid = () => shB64(crypto.getRandomValues(new Uint8Array(8))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+async function shopAdd(conn, list, items){
+  const path = 'lists/' + await shFileId(list.k) + '.json', key = await shKey(list.k);
+  const api = 'https://api.github.com/repos/' + shopRepo() + '/contents/' + path;
+  const H = { Authorization: 'Bearer ' + conn.t, Accept: 'application/vnd.github+json' };
+  for (let attempt = 0; attempt < 4; attempt++){
+    const r = await fetch(api + '?ref=main&t=' + Date.now(), { cache: 'no-store', headers: H });
+    let st = { items: {}, hist: {}, cuts: {}, cats: {}, meta: {} }, sha = null;
+    if (r.ok){
+      const j = await r.json(); sha = j.sha;
+      const o = JSON.parse(atob(String(j.content).replace(/\s/g, '')));
+      st = JSON.parse(shTd.decode(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: shUnB64(o.iv) }, key, shUnB64(o.ct))));
+      ['items', 'hist', 'cuts', 'cats', 'meta'].forEach(c => st[c] = st[c] || {});
+    } else if (r.status !== 404){ const e = new Error('GitHub ' + r.status); e.status = r.status; throw e; }
+    const act = {}; Object.values(st.items).forEach(i => { if (!i.del) act[norm(i.name)] = i; });
+    let ts = Date.now(), added = 0;
+    items.forEach(x => {
+      const n = norm(x.name), ex = act[n];
+      if (ex){ if (x.note && !(ex.note || '').includes(x.note)){ ex.note = ex.note ? ex.note + ' + ' + x.note : x.note; ex.ts = ts++; } return; }
+      const e = { id: shRid(), name: x.name, note: x.note || '', cat: x.cat || '', del: 0, ts: ts++ };
+      st.items[e.id] = e; act[n] = e; added++;
+    });
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const ct = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, shTe.encode(JSON.stringify(st))));
+    const body = JSON.stringify({ v: 1, iv: shB64(iv), ct: shB64(ct) });
+    const w = await fetch(api, { method: 'PUT', headers: H, body: JSON.stringify({ message: 'Aus dem Gerichte-Roster', content: btoa(body), branch: 'main', ...(sha ? { sha } : {}) }) });
+    if (w.ok) return added;
+    if (w.status !== 409 && w.status !== 422){ const e = new Error('GitHub ' + w.status); e.status = w.status; throw e; }
+  }
+  throw new Error('Die Liste wurde gerade geändert. Bitte noch einmal versuchen.');
+}
+let xfItems = [], xfSel = new Set(), xfTarget = '';
+function xfCats(){ return CATS.map(c => ({ ...c, items: xfItems.filter(i => i.cat === c.id) })).filter(c => c.items.length); }
+function openXfer(){
+  const agg = aggregate();
+  xfItems = [
+    ...agg.items.map(i => ({ id: i.kind + ':' + i.key, name: i.name, note: i.amount || '', cat: i.cat, checked: !!plan.checked[i.kind + ':' + i.key] })),
+    ...plan.manual.map((m, idx) => ({ id: 'm:' + idx, name: cap(m.t), note: '', cat: catOf(m.t), checked: m.done }))
+  ];
+  // vorausgewählt: alles außer Kitchen essentials und schon Abgehaktem
+  xfSel = new Set(xfItems.filter(i => i.cat !== 'ess' && !i.checked).map(i => i.id));
+  try { xfTarget = localStorage.getItem('gerichte-roster-einkauf-ziel') || ''; } catch(e){}
+  renderXfer(); $('#xfer').showModal();
+}
+function renderXfer(){
+  const conn = shopConn(), body = $('#xfBody');
+  if (!conn){
+    body.innerHTML = `<p>Noch nicht mit der Einkaufs-App verbunden. In der Einkaufs-App oben auf ⋯ tippen und „Mit Gerichte-Roster verbinden“ wählen. Auf Android und am Computer klappt das automatisch, sobald die Einkaufs-App einmal mit Zugang geöffnet wurde.</p>
+      <div class="dlg-actions"><a class="btn primary" href="${esc(CONFIG.shopUrl)}">Einkaufs-App öffnen</a></div>`;
+    return;
+  }
+  if (!conn.l.some(l => l.k === xfTarget)) xfTarget = conn.l[0].k;
+  const cats = xfCats(), all = xfItems.length && xfItems.every(i => xfSel.has(i.id));
+  body.innerHTML = `<p>Auswählen, was auf die Einkaufsliste soll: alles, ganze Bereiche oder einzelne Zutaten.</p>
+    <label class="xf-all"><input type="checkbox" id="xfAll"${all ? ' checked' : ''}> Alles <span class="n2" style="margin-left:auto">${xfSel.size} von ${xfItems.length}</span></label>
+    <div class="xf-tree">${cats.map(c => {
+      const n = c.items.filter(i => xfSel.has(i.id)).length;
+      return `<details class="xf-cat"${c.id === 'ess' ? '' : ' open'}><summary><input type="checkbox" data-xc="${c.id}"${n === c.items.length ? ' checked' : ''} aria-label="${esc(c.label)} komplett">${esc(c.id === 'ess' ? 'Kitchen essentials (meist da)' : c.label)}<span class="n2">${n}/${c.items.length}</span></summary>
+        <ul>${c.items.map(i => `<li><label><input type="checkbox" data-xi="${esc(i.id)}"${xfSel.has(i.id) ? ' checked' : ''}><span>${i.note ? `<b>${esc(i.note)}</b> ` : ''}${esc(i.name)}</span></label></li>`).join('')}</ul></details>`;
+    }).join('')}</div>
+    <div><b>An welche Liste?</b><div class="seg" id="xfSeg">${conn.l.map(l => `<button type="button" data-xt="${esc(l.k)}" aria-pressed="${l.k === xfTarget}">${esc((l.e ? l.e + ' ' : '') + l.n)}</button>`).join('')}</div></div>
+    <div class="msg" id="xfMsg" role="status"></div>
+    <div class="dlg-actions xf-go"><button class="btn primary" id="xfGo" type="button"${xfSel.size ? '' : ' disabled'}>${xfSel.size === 1 ? '1 Eintrag' : xfSel.size + ' Einträge'} übertragen</button></div>`;
+  cats.forEach(c => { const n = c.items.filter(i => xfSel.has(i.id)).length; const cb = $(`[data-xc="${c.id}"]`, body); if (cb) cb.indeterminate = n > 0 && n < c.items.length; });
+  const a = $('#xfAll', body); a.indeterminate = xfSel.size > 0 && !all;
+}
+$('#xfBody').addEventListener('click', e => {
+  if (e.target.closest('summary') && e.target.matches('input')) e.stopPropagation();
+  const t = e.target.closest('[data-xt]'); if (t){ xfTarget = t.dataset.xt; try { localStorage.setItem('gerichte-roster-einkauf-ziel', xfTarget); } catch(_){} renderXfer(); }
+});
+$('#xfBody').addEventListener('change', e => {
+  const t = e.target;
+  if (t.id === 'xfAll'){ xfSel = t.checked ? new Set(xfItems.map(i => i.id)) : new Set(); }
+  else if (t.dataset.xc){ xfItems.filter(i => i.cat === t.dataset.xc).forEach(i => t.checked ? xfSel.add(i.id) : xfSel.delete(i.id)); }
+  else if (t.dataset.xi){ t.checked ? xfSel.add(t.dataset.xi) : xfSel.delete(t.dataset.xi); }
+  else return;
+  const body = $('#xfBody'), y = body.scrollTop, open = $$('#xfBody details').map(d => d.open); renderXfer(); $$('#xfBody details').forEach((d, i) => { if (open[i] != null) d.open = open[i]; }); body.scrollTop = y;
+});
+$('#xfBody').addEventListener('click', async e => {
+  if (!e.target.closest('#xfGo')) return;
+  const conn = shopConn(), list = conn && conn.l.find(l => l.k === xfTarget); if (!list) return;
+  const btn = $('#xfGo'), msg = $('#xfMsg'); btn.disabled = true; msg.className = 'msg'; msg.textContent = 'Wird übertragen …';
+  const items = xfItems.filter(i => xfSel.has(i.id)).map(i => ({ name: i.name, note: i.note, cat: i.cat === 'sonst' ? '' : i.cat }));
+  try {
+    const added = await shopAdd(conn, list, items);
+    $('#xfer').close(); toast(added === items.length ? `${added} ${added === 1 ? 'Eintrag' : 'Einträge'} an „${list.n}“ übertragen.` : `${added} neu auf „${list.n}“, der Rest stand schon drauf.`);
+  } catch(err){
+    btn.disabled = false; msg.className = 'msg err';
+    msg.textContent = err.status === 401 ? 'Der Zugang der Einkaufs-App ist ungültig. Bitte dort neu einrichten und erneut verbinden.' : err.status === 404 || err.status === 403 ? 'Kein Zugriff auf das Daten-Repository der Einkaufs-App.' : 'Übertragen fehlgeschlagen: ' + (err.message || '');
+  }
+});
+
 /* ============ App: Installation und Offline ============ */
 const isStandalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
 const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -1242,32 +1383,48 @@ if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) window.
 
 /* ============ Navigation ============ */
 function showView(v){
-  $('#listView').hidden = v !== 'list'; $('#detailView').hidden = v !== 'detail'; $('#planView').hidden = v !== 'plan'; $('#adminView').hidden = v !== 'admin'; $('#hero').hidden = v !== 'list';
+  $('#listView').hidden = v !== 'list'; $('#planView').hidden = v !== 'plan'; $('#adminView').hidden = v !== 'admin'; $('#hero').hidden = v !== 'list';
   if (v === 'plan') $('#planLink').setAttribute('aria-current', 'page'); else $('#planLink').removeAttribute('aria-current');
 }
-let view = 'list';
+let view = 'list', base = '';
+function openSheet(d){
+  const el = $('#detailView'), swap = view === 'detail';
+  if (!base){ base = 'list'; showView('list'); }
+  view = 'detail'; showDetail(d);
+  el.hidden = false; document.body.classList.add('sheet-open'); el.scrollTop = 0;
+  if (swap) $('.sheet', el).classList.add('swap');
+}
+function closeSheet(){
+  $('#detailView').hidden = true; $('#detailView').innerHTML = ''; document.body.classList.remove('sheet-open');
+  current = null; rolled = false;
+  if (wake){ wake.release().catch(() => {}); wake = null; }
+}
+function closeSheetNav(){ if (cameInApp) history.back(); else location.replace('#/'); }
 function route(){
   const h = location.hash;
   let m;
   if ((m = h.match(/^#\/g\/([^?]+)/))){
     const d = M.byId.get(decodeURIComponent(m[1]));
-    if (d){
-      if (view === 'list') listScroll = window.scrollY;
-      view = 'detail'; showView('detail'); showDetail(d); window.scrollTo(0, 0); return;
-    }
+    if (d){ openSheet(d); return; }
+  }
+  const fromSheet = view === 'detail';
+  if (fromSheet) closeSheet();
+  if (base === 'list' && !fromSheet) listScroll = window.scrollY;
+  if ((m = h.match(/^#\/einkauf\?d=([A-Za-z0-9_-]+)/))){
+    try { const c = JSON.parse(decodeURIComponent(escape(atob(m[1].replace(/-/g, '+').replace(/_/g, '/'))))); if (c.t && c.l && c.l.length){ localStorage.setItem(SHOP_CONN, JSON.stringify(c)); setTimeout(() => toast('Mit der Einkaufs-App verbunden.'), 300); } } catch(e){}
+    location.replace('#/plan/einkauf'); return;
   }
   if (h === '#/admin'){
-    if (view === 'list') listScroll = window.scrollY;
-    view = 'admin'; showView('admin'); renderAdmin(); document.title = 'Freigaben – Gerichte-Roster'; window.scrollTo(0, 0); if (isAdmin()) loadPending(); return;
+    const keep = fromSheet && base === 'admin';
+    base = view = 'admin'; showView('admin'); if (!keep){ renderAdmin(); window.scrollTo(0, 0); if (isAdmin()) loadPending(); }
+    document.title = 'Freigaben – Gerichte-Roster'; return;
   }
   if ((m = h.match(/^#\/plan(\/einkauf)?(?:\?p=(.+))?$/))){
-    if (view === 'list') listScroll = window.scrollY;
+    const keep = fromSheet && base === 'plan', y = window.scrollY;
     if (m[2]){ try { const arr = JSON.parse(b64d(m[2])); incoming = arr.filter(a => Array.isArray(a) && a.length >= 3).map(a => ({ u: uid(), id: String(a[0]), day: Math.min(6, Math.max(0, +a[1] | 0)), f: +a[2] || 1 })); } catch(e){ incoming = null; } }
-    view = 'plan'; showView('plan'); renderPlan(m[1] ? 'einkauf' : 'plan'); document.title = 'Wochenplan – Gerichte-Roster'; window.scrollTo(0, 0); return;
+    base = view = 'plan'; showView('plan'); renderPlan(m[1] ? 'einkauf' : 'plan'); document.title = 'Wochenplan – Gerichte-Roster'; window.scrollTo(0, keep ? y : 0); return;
   }
-  current = null; rolled = false;
-  if (wake){ wake.release().catch(() => {}); wake = null; }
-  const was = view; view = 'list'; showView('list');
+  const was = base; base = view = 'list'; showView('list');
   document.title = 'Gerichte-Roster';
   if (was !== 'list') window.scrollTo(0, listScroll);
 }
@@ -1284,7 +1441,7 @@ $('#roll').addEventListener('click', () => { spin(); rollRandom(); });
 $('#homeLink').addEventListener('click', () => { listScroll = 0; });
 
 $('#detailView').addEventListener('click', e => {
-  if (e.target.closest('#back')){ if (cameInApp) history.back(); else location.hash = '#/'; return; }
+  if (e.target.closest('#back') || e.target === e.currentTarget){ closeSheetNav(); return; }
   if (e.target.closest('#again')){ rollRandom(); return; }
   if (e.target.closest('#wake')){ toggleWake(); return; }
   const pb = e.target.closest('#planbtn'); if (pb){ const dp = $('#daypick'); dp.hidden = !dp.hidden; pb.setAttribute('aria-expanded', !dp.hidden); return; }
@@ -1315,6 +1472,7 @@ $('#planView').addEventListener('click', async e => {
   }
   if (t.closest('#inYes')){ plan.entries = incoming; incoming = null; savePlan(); location.hash = '#/plan'; return; }
   if (t.closest('#inNo')){ incoming = null; location.hash = '#/plan'; return; }
+  if (t.closest('#xferBtn')){ openXfer(); return; }
   if (t.closest('#copyList')){ flash(t.closest('#copyList'), (await copyText(shoppingText())) ? 'Liste kopiert' : 'Kopieren nicht möglich'); return; }
   if (t.closest('#uncheck')){ plan.checked = {}; plan.manual.forEach(m => m.done = false); savePlan(); renderPlan('einkauf'); return; }
   const mr = t.closest('[data-mrm]'); if (mr){ plan.manual.splice(+mr.dataset.mrm, 1); savePlan(); renderPlan('einkauf'); return; }
@@ -1337,6 +1495,7 @@ $('#pkList').addEventListener('click', e => {
 });
 document.addEventListener('click', e => { if (e.target.closest('a[href^="#/"]')) cameInApp = true; });
 window.addEventListener('hashchange', route);
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && view === 'detail' && !document.querySelector('dialog[open]')) closeSheetNav(); });
 document.addEventListener('visibilitychange', async () => { if (document.visibilityState === 'visible' && wake === null && $('#wake') && $('#wake').getAttribute('aria-pressed') === 'true'){ await toggleWake(); } });
 
 /* ============ Start ============ */
@@ -1352,9 +1511,9 @@ function applyData(data, kind){
   M = buildModel(data); M.byId = new Map(M.dishes.map(d => [d.id, d]));
   window.__roster = M; window.__plan = () => plan; setStatus(kind, data);
   if (!M.dishes.some(d => d.tab === S.tab)){ const first = CONFIG.tabs.findIndex((t, i) => M.dishes.some(d => d.tab === i)); S.tab = Math.max(0, first); }
-  const keep = view === 'detail' && current ? { id: current.id, f: factor, y: window.scrollY } : null;
+  const keep = view === 'detail' && current ? { id: current.id, f: factor, y: $('#detailView').scrollTop } : null;
   renderAll(); updateBadge(); route();
-  if (keep && current && current.id === keep.id){ factor = keep.f; fillScaled(); window.scrollTo(0, keep.y); }
+  if (keep && current && current.id === keep.id){ factor = keep.f; fillScaled(); const el = $('#detailView'), sh = $('.sheet', el); if (sh){ sh.classList.remove('swap'); sh.style.animation = 'none'; } el.scrollTop = keep.y; }
 }
 (function init(){
   S.tab = Math.max(0, CONFIG.tabs.findIndex(t => t.name === CONFIG.defaultTab));
